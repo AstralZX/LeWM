@@ -1,5 +1,4 @@
-#ifndef LEWM_LE_AST_HPP
-#define LEWM_LE_AST_HPP
+#pragma once
 
 #include <string>
 #include <vector>
