@@ -6,9 +6,9 @@
 
 namespace le {
 
-// dwl-compatible IPC socket. Listens on $XDG_RUNTIME_DIR/LeWM.sock and
-// accepts single-line commands (layout_next, kill_focused, ...). The wire
-// format matches dwl's ipc so existing clients work unchanged.
+// LeWM IPC socket. Listens on $XDG_RUNTIME_DIR/LeWM.sock and accepts
+// single-line commands (layout_next, kill_focused, ...). Commands are
+// processed by the compositor's tiler and layout state.
 class Ipc {
 public:
     explicit Ipc(const std::string& runtime_dir);

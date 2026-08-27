@@ -1,10 +1,9 @@
 # LeWM
 
 LeWM is a Wayland compositor for people who want a tiling window manager
-that gets out of the way. It is written in C++ and built on top of
-[dwl](https://codeberg.org/dwl/dwl), which means it sits directly on
-[wlroots](https://gitlab.freedesktop.org/wlroots/wlroots) instead of
-wrapping an existing X11 toolset.
+that gets out of the way. It is written in C++ and built directly on
+[wlroots](https://gitlab.freedesktop.org/wlroots/wlroots), without
+wrapping an existing X11 toolset or sitting on another compositor.
 
 The goal is simple: low memory footprint, predictable latency, and a
 config file you can actually read.
@@ -12,16 +11,15 @@ config file you can actually read.
 ## Why another compositor
 
 Most Wayland compositors either hide everything behind a GUI or expect you
-to recompile to change a keybinding. LeWM takes the dwl approach (small,
-readable core) and adds a real configuration language so behavior lives in
-a file, not in a header you have to edit and rebuild.
+to recompile to change a keybinding. LeWM keeps a small, readable core
+and adds a real configuration language so behavior lives in a file, not
+in a header you have to edit and rebuild.
 
 What you get:
 
 - Static tiling with multiple layouts, no floating-by-default surprises
 - A config language called `le`, parsed at startup from `config.le`
-- IPC socket compatible with the dwl ext-foreign protocol, so existing
-  dwl clients keep working
+- A Unix IPC socket for runtime control (layout switches, focus, close)
 - Memory use that stays under what a typical Qt or GTK shell pulls in
   before it has drawn a single window
 
@@ -31,7 +29,7 @@ favorite launcher are expected to come from the rest of your system.
 
 ## Building
 
-LeWM needs the same dependencies as dwl, plus a C++20 compiler.
+LeWM needs wlroots and the usual Wayland plumbing, plus a C++20 compiler.
 
 ### Dependencies
 
@@ -115,10 +113,11 @@ and a larger example lives in [`examples/config.le`](examples/config.le).
 
 ## IPC
 
-LeWM exposes a Unix socket at `$XDG_RUNTIME_DIR/LeWM.sock`. The protocol
-is byte-compatible with dwl's, so tools like `dwl-ipc` Python bindings work
-without changes. Sending `layout_next` over the socket does the same thing
-as the keybinding above.
+LeWM exposes a Unix socket at `$XDG_RUNTIME_DIR/LeWM.sock`. Clients send
+single-line commands; `layout_next`, `kill_focused`, `focus_next` and
+`focus_prev` are understood. Sending `layout_next` over the socket does the
+same thing as the keybinding above. The wire format is LeWM-specific, so
+write to the socket directly or use a small helper script.
 
 ## Status
 

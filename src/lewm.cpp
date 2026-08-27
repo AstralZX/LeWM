@@ -4,7 +4,7 @@ namespace le {
 
 LeWM::LeWM(Config cfg)
     : cfg_(std::move(cfg)),
-      backend_(std::make_unique<DwlBackend>(cfg_)) {}
+      backend_(std::make_unique<Compositor>(cfg_)) {}
 
 LeWM::~LeWM() = default;
 

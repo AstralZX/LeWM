@@ -1,4 +1,4 @@
-#include "dwl_backend.hpp"
+#include "backend.hpp"
 
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
@@ -6,11 +6,11 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_xwayland.h>
 
-#include <cstdlib>
+#include <stdexcept>
 
 namespace le {
 
-DwlBackend::DwlBackend(const Config& cfg) : cfg_(cfg) {
+Compositor::Compositor(const Config& cfg) : cfg_(cfg) {
     display_ = wl_display_create();
     if (!display_) throw std::runtime_error("wl_display_create failed");
 
@@ -22,31 +22,31 @@ DwlBackend::DwlBackend(const Config& cfg) : cfg_(cfg) {
     if (cfg_.xwayland) setup_xwayland();
 }
 
-DwlBackend::~DwlBackend() {
+Compositor::~Compositor() {
     if (backend_) wlr_backend_destroy(backend_);
     if (display_) wl_display_destroy(display_);
 }
 
-void DwlBackend::setup_outputs() {
+void Compositor::setup_outputs() {
     // Output layout is populated as outputs are advertised by the backend.
     // Placeholder: real code registers wlr_output_layout and adds listeners.
 }
 
-void DwlBackend::setup_seat() {
+void Compositor::setup_seat() {
     // Placeholder: create the seat, attach keyboard/pointer/touch, and
     // forward input events to the tiler.
 }
 
-void DwlBackend::setup_xwayland() {
+void Compositor::setup_xwayland() {
     // Placeholder: wlr_xwayland_create and lazy bind the X socket.
 }
 
-void DwlBackend::run() {
+void Compositor::run() {
     running_ = true;
     if (!wl_display_run(display_)) running_ = false;
 }
 
-void DwlBackend::stop() {
+void Compositor::stop() {
     running_ = false;
     if (display_) wl_display_terminate(display_);
 }

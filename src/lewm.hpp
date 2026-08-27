@@ -2,7 +2,7 @@
 #define LEWM_LEWM_HPP
 
 #include "config/le_ast.hpp"
-#include "compositor/dwl_backend.hpp"
+#include "compositor/backend.hpp"
 #include "layout/tiling.hpp"
 #include <memory>
 
@@ -18,7 +18,7 @@ public:
 
 private:
     Config cfg_;
-    std::unique_ptr<DwlBackend> backend_;
+    std::unique_ptr<Compositor> backend_;
     Tiler tiler_;
 };
 
