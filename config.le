@@ -1,0 +1,134 @@
+# =============================================================================
+# LeWM configuration  -  language: le
+# -----------------------------------------------------------------------------
+# This file is read once at startup from ~/.config/LeWM/config.le
+# Every line is one directive. # starts a comment. Strings with spaces go in
+# double quotes. Booleans are true / false. Nothing else to remember.
+#
+# Sections below are just comments for your eyes; the parser does not care
+# about ordering. Change something, save, restart LeWM (or use the settings
+# panel / `set` over the IPC socket for the live bits).
+# =============================================================================
+
+
+# --- Core --------------------------------------------------------------------
+# The main modifier used by every keybinding below.
+modkey "Super"
+
+# Gap between tiled windows, in pixels.
+gap 6
+
+# Draw server-side borders? LeWM keeps it simple: one pixel-ish frame.
+border_width 2
+border_color_active  "#d65d0e"
+border_color_normal  "#282828"
+border_color_urgent  "#cc241d"
+
+# XWayland is off by default. Flip to true if you need X11 apps.
+xwayland false
+
+# Layout applied to fresh workspaces.
+layout default "tile"
+
+
+# --- Animations --------------------------------------------------------------
+# This is what makes LeWM feel smooth instead of snappy-in-a-bad-way.
+# Durations are in milliseconds. Easing names: linear, easeOutQuad,
+# easeOutCubic, easeInOutCubic, easeOutBack.
+animation enabled   true
+animation open_ms   220
+animation close_ms  160
+animation move_ms   130
+animation easing   "easeOutCubic"
+
+
+# --- Settings panel ----------------------------------------------------------
+# A built-in panel you can pop open with the `toggle_panel` IPC command or a
+# keybinding. It is a live config surface: changes write straight back to this
+# file. The geometry/colors live here.
+panel enabled   true
+panel position  "top"
+panel height    28
+panel bg       "#1d2021"
+panel fg       "#ebdbb2"
+
+
+# --- Startup -----------------------------------------------------------------
+# Programs to launch once the compositor is up. Order is launch order.
+startup "swaybg -m fill -i /usr/share/backgrounds/lewm.png"
+startup "waybar"
+startup "dunst"
+startup "pipewire"
+startup "xdg-desktop-portal-wlr"
+
+
+# --- Keybindings -------------------------------------------------------------
+# Format:  key "Combo" action [args...]
+# Combo is the modifier sequence. Actions: exec, layout_next, kill_focused,
+# focus_next, focus_prev, workspace "n", toggle_panel, relayout.
+
+# Launchers
+key "Super+Enter"     exec "foot"
+key "Super+d"         exec "fuzzel"
+key "Super+r"         exec "grim -g \"$(slurp)\""
+key "Super+Shift+r"   exec "swaylock"
+
+# Layout + focus
+key "Super+Space"     layout_next
+key "Super+j"         focus_next
+key "Super+k"         focus_prev
+key "Super+Shift+j"   focus_prev
+key "Super+Shift+k"   focus_next
+key "Super+Return"    relayout
+
+# Window management
+key "Super+Shift+q"   kill_focused
+key "Super+f"         exec "echo fullscreen"
+key "Super+Shift+Space" toggle_panel
+
+# Workspaces 1..9
+key "Super+1"         workspace "1"
+key "Super+2"         workspace "2"
+key "Super+3"         workspace "3"
+key "Super+4"         workspace "4"
+key "Super+5"         workspace "5"
+key "Super+6"         workspace "6"
+key "Super+7"         workspace "7"
+key "Super+8"         workspace "8"
+key "Super+9"         workspace "9"
+key "Super+Shift+1"   workspace "1"
+key "Super+Shift+2"   workspace "2"
+key "Super+Shift+3"   workspace "3"
+
+
+# --- Workspaces --------------------------------------------------------------
+# First arg is the id used by the keybindings above, second is a label.
+workspace "1" "term"
+workspace "2" "web"
+workspace "3" "code"
+workspace "4" "chat"
+workspace "5" "media"
+workspace "6" "games"
+workspace "7" "mail"
+workspace "8" "files"
+workspace "9" "misc"
+
+
+# --- Rules -------------------------------------------------------------------
+# Match a client by app_id and decide where it lands. Assign a workspace and
+# whether it floats by default.
+rule "firefox"          workspace "2" float false
+rule "chromium"         workspace "2" float false
+rule "org.mozilla.firefox" workspace "2" float false
+rule "code"             workspace "3" float false
+rule "emacs"            workspace "3" float false
+rule "discord"          workspace "4" float false
+rule "telegram"         workspace "4" float false
+rule "spotify"          workspace "5" float false
+rule "steam"            workspace "6" float true
+rule "thunderbird"      workspace "7" float false
+rule "nautilus"         workspace "8" float false
+rule "pcmanfm"          workspace "8" float false
+rule "pavucontrol"      workspace "9" float true
+rule "org.telegram.desktop" workspace "4" float false
+rule "mpv"              workspace "5" float true

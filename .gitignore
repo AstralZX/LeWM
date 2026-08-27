@@ -1,15 +1,13 @@
-# Build output
-/LeWM
+# Build dirs
+/build/
+/cmake-build-*/
 *.o
 *.so
 
-# Local config (keep your own out of the tree)
-config.le
+# Local session files
+*.sock
 
 # Editor noise
 *.swp
 *~
 .directory
-
-# Session leftovers
-*.sock

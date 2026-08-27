@@ -1,0 +1,58 @@
+# LeWM example config.le
+# Copy to ~/.config/LeWM/config.le and edit. This one is tuned for a laptop
+# with a high-DPI screen and a handful of floating exceptions.
+
+modkey "Super"
+
+gap 8
+border_width 1
+border_color_active  "#83a598"
+border_color_normal  "#3c3836"
+border_color_urgent  "#fb4934"
+
+xwayland true
+layout default "tile"
+
+# Slower, softer animations for a chill feel.
+animation enabled   true
+animation open_ms   280
+animation close_ms  200
+animation move_ms   180
+animation easing   "easeInOutCubic"
+
+panel enabled   true
+panel position  "bottom"
+panel height    30
+panel bg       "#282828"
+panel fg       "#fbf1c7"
+
+startup "swaybg -m stretch -i ~/wallpaper.jpg"
+startup "waybar -c ~/.config/waybar/top.jsonc"
+startup "blueman-applet"
+
+key "Super+Enter"   exec "alacritty"
+key "Super+Shift+e" exec "exit"
+key "Super+d"       exec "rofi -show drun"
+key "Super+Space"   layout_next
+key "Super+q"       kill_focused
+key "Super+Tab"     focus_next
+key "Super+Shift+Tab" focus_prev
+key "Super+p"       toggle_panel
+
+key "Super+1" workspace "1"
+key "Super+2" workspace "2"
+key "Super+3" workspace "3"
+key "Super+4" workspace "4"
+
+workspace "1" "main"
+workspace "2" "web"
+workspace "3" "dev"
+workspace "4" "comms"
+
+rule "firefox"        workspace "2"
+rule "google-chrome"  workspace "2"
+rule "code"           workspace "3"
+rule "jetbrains-idea" workspace "3"
+rule "discord"        workspace "4" float false
+rule "zoom"           workspace "4" float true
+rule "qalculate-gtk"  workspace "1" float true

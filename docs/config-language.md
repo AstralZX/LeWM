@@ -1,96 +1,113 @@
 # The `le` configuration language
 
-LeWM is configured with a file called `config.le`, read once at startup
-from `$XDG_CONFIG_HOME/LeWM/config.le`. The language is line oriented.
-There is no statement terminator and no block syntax; every directive is
-one line.
+LeWM is configured with `config.le`, read once at startup from
+`~/.config/LeWM/config.le`. The language is line oriented: one directive per
+line, `#` starts a comment, and strings containing spaces go in double
+quotes. Booleans are the bare words `true` and `false`.
 
-## Lexical rules
+This file is also what the settings panel writes back to, so anything you
+can set here can be changed live and persisted.
 
-- Lines starting with `#` are comments and are ignored.
-- Tokens are separated by whitespace.
-- Double-quoted strings are used for keys, labels and commands that
-  contain spaces (e.g. `"Super+Enter"`, `"foot"`).
-- Booleans are the bare words `true` and `false`.
-
-## Directives
+## Top-level directives
 
 ### modkey
-
 ```
 modkey "Super"
 ```
+The primary modifier for all keybindings. Any XKB key name works; the
+common ones are `"Super"`, `"Alt"`, `"Control"`.
 
-Sets the primary modifier. Use the XKB key name. Common values:
-`"Super"`, `"Alt"`, `"Control"`.
+### gap
+```
+gap 6
+```
+Space in pixels between tiled windows.
 
 ### Borders
-
 ```
 border_width 2
-border_color_active  "#3c3836"
-border_color_normal  "#1d2021"
+border_color_active  "#d65d0e"
+border_color_normal  "#282828"
+border_color_urgent  "#cc241d"
 ```
 
-Width in pixels. Colors are hex RGB or RGBA.
+### xwayland
+```
+xwayland false
+```
+Run an XWayland server for legacy X11 clients. Off by default.
 
-### Layout
-
+### layout
 ```
 layout default "tile"
 ```
+Layout for new workspaces. Currently `"tile"` is the only one wired up; more
+land in later releases.
 
-Selects the layout applied to new workspaces. Valid names: `tile`,
-`mono`, `grid`.
+## Animation block
+```
+animation enabled true
+animation open_ms  220
+animation close_ms 160
+animation move_ms  130
+animation easing  "easeOutCubic"
+```
+Controls the smooth transitions. `easing` is one of: `linear`, `easeOutQuad`,
+`easeOutCubic`, `easeInOutCubic`, `easeOutBack`.
 
-### Keybindings
+## Panel block
+```
+panel enabled  true
+panel position "top"
+panel height   28
+panel bg      "#1d2021"
+panel fg      "#ebdbb2"
+```
+Configures the built-in settings panel overlay.
 
+## Startup
+```
+startup "waybar"
+startup "swaybg -m fill -i /usr/share/backgrounds/lewm.png"
+```
+Programs launched after the compositor comes up. Each line is one command.
+
+## Keybindings
 ```
 key "Combo" action [args...]
 ```
-
-`Combo` is the modifier sequence. `action` is one of:
+`Combo` is the modifier sequence. Built-in actions:
 
 - `exec "command"` - run a program
 - `layout_next` - cycle the active layout
 - `kill_focused` - close the focused surface
 - `focus_next` / `focus_prev` - move focus
 - `workspace "n"` - switch workspace
+- `toggle_panel` - open/close the settings panel
+- `relayout` - re-run the tiling layout on all outputs
 
-Example:
-
-```
-key "Super+Enter"   exec "foot"
-key "Super+Shift+q" kill_focused
-key "Super+Space"   layout_next
-```
-
-### Workspaces
-
+## Workspaces
 ```
 workspace "1" "term"
 workspace "2" "web"
 ```
+First argument is the id referenced by `key ... workspace`, second is a label
+for status tools.
 
-The first argument is the id used by `key ... workspace`, the second is
-a human label shown by status tools.
-
-### Rules
-
+## Rules
 ```
-rule "app_id" workspace "2" float false
+rule "firefox" workspace "2" float false
 ```
+Match a client by `app_id` and assign a workspace plus a default floating
+state. Multiple properties may follow the app id.
 
-Rules match a client's `app_id` (the Wayland surface class) and assign
-it a workspace and floating state at spawn time. Multiple properties may
-follow the app id.
+## Live changes
 
-## Behavior notes
-
-The parser is strict about unknown directives: it logs them and keeps
-going, so a typo will not abort startup but will be silent in the output
-unless you watch the log. Order matters only for keybindings; the first
-matching binding wins.
-
-Config reload is not live. Edit the file and restart the compositor, or
-send commands over the IPC socket for runtime changes.
+The IPC socket at `$XDG_RUNTIME_DIR/LeWM.sock` accepts lines like:
+```
+toggle_panel
+set gap 12
+set anim.open_ms 300
+set panel.bg "#000000"
+```
+`set` writes through to `config.le` immediately.
