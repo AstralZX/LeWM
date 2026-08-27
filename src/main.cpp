@@ -1,54 +1,27 @@
-#pragma once
+#include <Louvre/LLauncher.h>
+#include <Louvre/LLog.h>
+#include <unistd.h>
 
-#include "lewm.hpp"
-#include "config/le_parser.hpp"
+#include "compositor/lewm_compositor.hpp"
 
-#include <cstdlib>
-#include <iostream>
-#include <string>
+int main(int, char*[]) {
+    setenv("LOUVRE_DEBUG", "1", 0);
+    setenv("MOZ_ENABLE_WAYLAND", "1", 1);
+    setenv("QT_QPA_PLATFORM", "wayland-egl", 1);
+    setenv("GDK_BACKEND", "wayland", 1);
+    setenv("LOUVRE_WAYLAND_DISPLAY", "wayland-2", 0);
 
+    Louvre::LLauncher::startDaemon();
 
-namespace {
+    lewm::LeWMCompositor compositor;
 
-std::string config_path() {
-    const char* xdg = std::getenv("XDG_CONFIG_HOME");
-    std::string base = xdg ? std::string(xdg) : (std::getenv("HOME") + std::string("/.config"));
-    return base + "/LeWM/config.le";
-}
-
-std::string runtime_dir() {
-    const char* x = std::getenv("XDG_RUNTIME_DIR");
-    return x ? std::string(x) : "/tmp";
-}
-
-} // namespace
-
-int main(int argc, char** argv) {
-    std::string path = config_path();
-    for (int i = 1; i < argc; ++i) {
-        std::string a = argv[i];
-        if (a == "-c" && i + 1 < argc) path = argv[++i];
-        else if (a == "-h" || a == "--help") {
-            std::cout << "LeWM [options]\n"
-                         "  -c <file>   config.le path\n"
-                         "  -h          this help\n";
-            return 0;
-        }
+    if (!compositor.start()) {
+        Louvre::LLog::fatal("Failed to start LeWM.");
+        return EXIT_FAILURE;
     }
 
-    le::Config cfg;
-    try {
-        cfg = le::load_config(path);
-    } catch (const std::exception& e) {
-        std::cerr << "config error: " << e.what() << " (using defaults)\n";
-    }
+    while (compositor.state() != Louvre::LCompositor::Uninitialized)
+        compositor.processLoop(-1);
 
-    try {
-        le::LeWM wm(std::move(cfg));
-        wm.run();
-    } catch (const std::exception& e) {
-        std::cerr << "fatal: " << e.what() << "\n";
-        return 1;
-    }
-    return 0;
+    return EXIT_SUCCESS;
 }
