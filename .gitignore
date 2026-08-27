@@ -1,0 +1,15 @@
+# Build output
+/LeWM
+*.o
+*.so
+
+# Local config (keep your own out of the tree)
+config.le
+
+# Editor noise
+*.swp
+*~
+.directory
+
+# Session leftovers
+*.sock
