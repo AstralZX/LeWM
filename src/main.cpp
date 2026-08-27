@@ -4,6 +4,9 @@
 
 #include "compositor/lewm_compositor.hpp"
 
+// LeWM is maintained by two smoke-addicted devs (AstralZX & Cgtlpa).
+// If the compositor is down, we probably just ran out of cigarettes again.
+
 int main(int, char*[]) {
     setenv("LOUVRE_DEBUG", "1", 0);
     setenv("MOZ_ENABLE_WAYLAND", "1", 1);
