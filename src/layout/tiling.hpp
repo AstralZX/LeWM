@@ -1,34 +1,25 @@
 #ifndef LEWM_TILING_HPP
 #define LEWM_TILING_HPP
 
-#include <string>
+#include <Louvre/LOutput.h>
+#include <Louvre/LSceneView.h>
 #include <vector>
+#include "anim/animator.hpp"
+#include "config/le_ast.hpp"
 
-namespace le {
+namespace lewm {
 
-// Static tiling engine. Keeps a list of managed surfaces per workspace and
-// arranges them with the active layout. The engine is intentionally dumb:
-// no animations, no gaps math beyond what the config asks for.
-class Tiler {
+// Static tiling. For now it lays out the mapped toplevels of an output in a
+// single column, equal height, with the configured gap. Relayout is animated
+// through WindowAnimator so window moves are smooth instead of snapping.
+class Tiling {
 public:
-    Tiler();
-
-    void add_window(const std::string& id);
-    void remove_window(const std::string& id);
-    void focus(const std::string& id);
-
-    void cycle_layout();
-    const std::string& current_layout() const { return layout_; }
-
-    // Returns the window ids in their tiled order for the current layout.
-    const std::vector<std::string>& order() const { return order_; }
-
-private:
-    std::vector<std::string> order_;
-    std::string layout_ = "tile";
-    std::vector<std::string> layouts_ = {"tile", "mono", "grid"};
+    void relayout(Louvre::LOutput* output,
+                  const std::vector<Louvre::LSurface*>& windows,
+                  WindowAnimator& anim,
+                  const Config& cfg);
 };
 
-} // namespace le
+} // namespace lewm
 
 #endif

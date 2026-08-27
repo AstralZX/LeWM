@@ -1,10 +1,15 @@
 #include "ipc.hpp"
 
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#include <cstring>
 #include <stdexcept>
 
-namespace le {
+namespace lewm {
 
-Ipc::Ipc(const std::string& runtime_dir) {
+Ipc::Ipc(const std::string& runtime_dir, Handler handler)
+    : handler_(std::move(handler)) {
     socket_path_ = runtime_dir + "/LeWM.sock";
     fd_ = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd_ < 0) throw std::runtime_error("ipc socket create failed");
@@ -25,8 +30,8 @@ Ipc::~Ipc() {
 }
 
 void Ipc::serve() {
-    // Accept loop dispatches commands to the tiler. Stubbed: a real build
-    // registers this fd with the wl_display event loop instead.
+    // A real build registers fd_ with the compositor event loop and reads
+    // lines, forwarding each to handler_. Kept simple here.
 }
 
-} // namespace le
+} // namespace lewm

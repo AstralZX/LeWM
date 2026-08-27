@@ -1,17 +1,18 @@
+#ifndef LEWM_IPC_HPP
+#define LEWM_IPC_HPP
+
 #include <string>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <cstring>
+#include <functional>
 
-namespace le {
+namespace lewm {
 
-// LeWM IPC socket. Listens on $XDG_RUNTIME_DIR/LeWM.sock and accepts
-// single-line commands (layout_next, kill_focused, ...). Commands are
-// processed by the compositor's tiler and layout state.
+// Unix socket control channel. The compositor hands us a handler that gets
+// each line received on $XDG_RUNTIME_DIR/LeWM.sock.
 class Ipc {
 public:
-    explicit Ipc(const std::string& runtime_dir);
+    using Handler = std::function<void(const std::string&)>;
+
+    Ipc(const std::string& runtime_dir, Handler handler);
     ~Ipc();
 
     Ipc(const Ipc&) = delete;
@@ -22,6 +23,9 @@ public:
 private:
     std::string socket_path_;
     int fd_ = -1;
+    Handler handler_;
 };
 
-} // namespace le
+} // namespace lewm
+
+#endif
