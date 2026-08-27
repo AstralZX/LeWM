@@ -5,8 +5,8 @@
 
 namespace lewm {
 
-Louvre::LColor hex_to_color(const std::string& hex) {
-    Louvre::LColor c { 0.f, 0.f, 0.f, 1.f };
+Louvre::LRGBAF hex_to_color(const std::string& hex) {
+    Louvre::LRGBAF c { 0.f, 0.f, 0.f, 1.f };
     if (hex.size() < 7 || hex[0] != '#') return c;
     auto byte = [&](const char* p) -> float {
         return (float)std::strtoul(p, nullptr, 16) / 255.f;
@@ -18,8 +18,9 @@ Louvre::LColor hex_to_color(const std::string& hex) {
     return c;
 }
 
-SettingsPanel::SettingsPanel(Louvre::LLayerView* overlay, const Louvre::LColor& color)
-    : view_(color), overlay_(overlay) {
+SettingsPanel::SettingsPanel(Louvre::LLayerView* overlay, const Louvre::LRGBAF& color)
+    : view_(color.r, color.g, color.b, color.a, nullptr), overlay_(overlay) {
+    if (overlay_) view_.setParent(overlay_);
     view_.setVisible(false);
 }
 

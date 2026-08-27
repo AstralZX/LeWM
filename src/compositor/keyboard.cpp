@@ -26,7 +26,7 @@ std::string norm_key(const std::string& k) {
 }
 
 xkb_keysym_t target_sym(const std::string& key) {
-    return xkb_keysym_from_name(norm_key(key).c_str());
+    return xkb_keysym_from_name(norm_key(key).c_str(), XKB_KEYSYM_NO_FLAGS);
 }
 
 bool mod_active(LeWMKeyboard* kb, const std::string& name) {
@@ -40,7 +40,9 @@ void LeWMKeyboard::keyEvent(const Louvre::LKeyboardKeyEvent& event) {
 
     if (event.state() == Louvre::LKeyboardKeyEvent::Pressed) {
         xkb_keysym_t sym = keySymbol(event.keyCode());
-        std::string got = xkb_keysym_get_name(sym);
+        char symName[64];
+        xkb_keysym_get_name(sym, symName, sizeof(symName));
+        std::string got(symName);
         for (auto& c : got) c = std::tolower((unsigned char)c);
 
         for (const auto& kb : wm.settings.cfg.keys) {
@@ -61,13 +63,13 @@ void LeWMKeyboard::keyEvent(const Louvre::LKeyboardKeyEvent& event) {
                 if (!mod_active(this, m)) { modsOk = false; break; }
             if (!modsOk) continue;
 
-            wm.run_action(kb);
+            wm.runAction(kb);
             return; // swallow the binding
         }
     }
 
     // Not a binding: forward to clients.
-    wm.scene.handleKeyboardKeyEvent(event, Louvre::LEventOptionsDefault);
+    wm.scene.handleKeyboardKeyEvent(event);
 }
 
 } // namespace lewm

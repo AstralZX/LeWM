@@ -11,7 +11,7 @@ void LeWMOutput::initializeGL() {
     lewm::self().scene.handleInitializeGL(this);
 
     Louvre::LWeak<LeWMOutput> weak(this);
-    fadeInView.insertAfter(&lewm::self().scene.layers[Louvre::LLayerOverlay]);
+    fadeInView.insertAfter(&lewm::self().scene.layers[LayerOverlay]);
     fadeInView.setOpacity(0.f);
 
     Louvre::LAnimation::oneShot(1000,
@@ -47,7 +47,7 @@ void LeWMOutput::uninitializeGL() {
 }
 
 void LeWMOutput::setGammaRequest(Louvre::LClient* client, const Louvre::LGammaTable* gamma) {
-    Louvre::L_UNUSED(client);
+    L_UNUSED(client);
     setGamma(gamma);
 }
 

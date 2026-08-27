@@ -8,8 +8,8 @@ namespace lewm {
 namespace {
 Louvre::LPoint lerp(const Louvre::LPoint& a, const Louvre::LPoint& b, float t) {
     return Louvre::LPoint(
-        (Int32)(a.x() + (b.x() - a.x()) * t),
-        (Int32)(a.y() + (b.y() - a.y()) * t));
+        (Louvre::Int32)(a.x() + (b.x() - a.x()) * t),
+        (Louvre::Int32)(a.y() + (b.y() - a.y()) * t));
 }
 } // namespace
 

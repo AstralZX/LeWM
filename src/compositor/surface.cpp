@@ -28,7 +28,7 @@ void LeWMSurface::mappingChanged() {
             if (r.app_id == aid) { ws = r.workspace; break; }
 
         lewm::self().tagSurface(this, ws);
-        for (Louvre::LOutput* o : compositor()->outputs())
+        for (Louvre::LOutput* o : Louvre::compositor()->outputs())
             lewm::self().relayout(o);
     }
 }

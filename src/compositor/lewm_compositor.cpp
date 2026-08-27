@@ -4,6 +4,7 @@
 #include "surface.hpp"
 #include "toplevel.hpp"
 #include "keyboard.hpp"
+#include "settings/panel.hpp"
 
 #include <Louvre/LLauncher.h>
 #include <Louvre/LLog.h>
@@ -22,7 +23,7 @@ LeWMCompositor::LeWMCompositor() : LCompositor() {
     config_path = base + "/LeWM/config.le";
 
     settings.load(config_path);
-    panel = std::make_unique<SettingsPanel>(&scene.layers[Louvre::LLayerOverlay],
+    panel = std::make_unique<SettingsPanel>(&scene.layers[LayerOverlay],
                                             hex_to_color(settings.cfg.panel.bg));
 }
 
@@ -87,7 +88,7 @@ std::vector<Louvre::LSurface*> LeWMCompositor::workspaceWindows(Louvre::LOutput*
         std::string t = tags_[s];
         if (t.empty()) t = current_workspace;
         if (t != current_workspace) continue;
-        if (out->availableGeometry().contains(s->pos()))
+        if (out->availableGeometry().containsPoint(s->pos()))
             wins.push_back(s);
     }
     return wins;
