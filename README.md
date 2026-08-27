@@ -31,13 +31,17 @@ thunar, whatever). LeWM just manages windows.
 
 ## Features
 
-- Static tiling with a single-column layout and animated relayouts
-- The `le` config language, read from `~/.config/LeWM/config.le`
+- Real keybindings. `config.le` keys are matched against the live keymap, so
+  `Super+Enter` does what it says. No recompile to add a binding.
+- Static tiling with multiple layouts (single-column tile and a grid) and
+  animated relayouts when windows open, close or move
+- Workspaces. Bind `Super+1`..`Super+9`, windows land on the workspace their
+  rule assigns, everything else gets hidden until you switch back
 - Window open/close/move transitions with selectable easing
-- A built-in settings panel overlay, live-editable over IPC
+- A built-in settings panel, live-editable over IPC or a keybinding
 - A Unix IPC socket (`$XDG_RUNTIME_DIR/LeWM.sock`) for scripting
 - Low memory footprint; it does less than the big desktops on purpose
-- MIT-ish UNIX philosophy: small core, everything else is a client
+- Small C++ core on Louvre, everything else is a client
 
 ## Building
 
@@ -142,12 +146,16 @@ relayout
 
 ## Status
 
-LeWM boots, tiles, animates and takes IPC commands. Current rough edges:
+LeWM boots, tiles, animates, switches workspaces and takes IPC commands.
+What is still rough:
 
-- Only the single-column layout is wired; more layouts are on the way
-- The settings panel UI controls are a placeholder overlay for now
+- The settings panel is a dimming overlay right now; the configuration it
+  edits is fully live and persistent, the clickable UI on top of it is not
+  built yet
 - XWayland works but is off unless you flip `xwayland true`
-- Multi-monitor is handled but untested on anything weird
+- Multi-monitor is handled but only lightly tested
+- Builds against Louvre 2.x; a few API calls (noted in the source comments)
+  should be re-checked against the exact version you install
 
 Bug reports, configs and patches are welcome. Keep the memory budget honest
 and the pull requests small.

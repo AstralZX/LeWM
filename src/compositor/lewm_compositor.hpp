@@ -2,6 +2,7 @@
 #define LEWM_COMPOSITOR_HPP
 
 #include <LCompositor.h>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -26,6 +27,9 @@ public:
     Tiling tiling;
     std::unique_ptr<SettingsPanel> panel;
 
+    LayoutKind layout_kind = LayoutKind::Tile;
+    std::string current_workspace = "1";
+
 protected:
     void initialized() override;
     void uninitialized() override;
@@ -36,14 +40,21 @@ protected:
     bool globalsFilter(Louvre::LClient* client, Louvre::LGlobal* global) override;
 
 public:
-    // Re-tiles every mapped toplevel on the given output.
     void relayout(Louvre::LOutput* output);
-
-    // Driven by the IPC socket.
-    void handle_command(const std::string& line);
+    void tagSurface(Louvre::LSurface* s, const std::string& ws);
+    void runAction(const KeyBinding& kb);
+    void killFocused();
+    void cycleFocus(int dir);
+    void cycleLayout();
+    void switchWorkspace(const std::string& id);
+    void handleCommand(const std::string& line);
 
     std::string config_path;
     std::unique_ptr<Ipc> ipc;
+
+private:
+    std::map<Louvre::LSurface*, std::string> tags_;
+    std::vector<Louvre::LSurface*> workspaceWindows(Louvre::LOutput* out);
 };
 
 } // namespace lewm

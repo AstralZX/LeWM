@@ -3,9 +3,11 @@
 #include "output.hpp"
 #include "surface.hpp"
 #include "toplevel.hpp"
+#include "keyboard.hpp"
 
 #include <Louvre/LLauncher.h>
 #include <Louvre/LLog.h>
+#include <Louvre/LScene.h>
 #include <cstdlib>
 
 namespace lewm {
@@ -48,7 +50,7 @@ void LeWMCompositor::initialized() {
 
     const char* rd = std::getenv("XDG_RUNTIME_DIR");
     ipc = std::make_unique<Ipc>(rd ? rd : "/tmp",
-                                [this](const std::string& line) { handle_command(line); });
+                                [this](const std::string& line) { handleCommand(line); });
 }
 
 void LeWMCompositor::uninitialized() {
@@ -64,8 +66,9 @@ Louvre::LFactoryObject* LeWMCompositor::createObjectRequest(
         return new LeWMSurface(params);
     if (objectType == Louvre::LFactoryObject::Type::LToplevelRole)
         return new LeWMToplevelRole(params);
+    if (objectType == Louvre::LFactoryObject::Type::LKeyboard)
+        return new LeWMKeyboard(params);
 
-    // Everything else uses Louvre's default implementation for now.
     return nullptr;
 }
 
@@ -77,32 +80,113 @@ bool LeWMCompositor::globalsFilter(Louvre::LClient*, Louvre::LGlobal*) {
     return true;
 }
 
-void LeWMCompositor::relayout(Louvre::LOutput* output) {
+std::vector<Louvre::LSurface*> LeWMCompositor::workspaceWindows(Louvre::LOutput* out) {
     std::vector<Louvre::LSurface*> wins;
     for (Louvre::LSurface* s : surfaces()) {
         if (!s->mapped() || !s->toplevel()) continue;
-        if (output->availableGeometry().contains(s->pos()))
+        std::string t = tags_[s];
+        if (t.empty()) t = current_workspace;
+        if (t != current_workspace) continue;
+        if (out->availableGeometry().contains(s->pos()))
             wins.push_back(s);
     }
-    tiling.relayout(output, wins, animator, settings.cfg);
+    return wins;
 }
 
-void LeWMCompositor::handle_command(const std::string& line) {
+void LeWMCompositor::relayout(Louvre::LOutput* output) {
+    auto wins = workspaceWindows(output);
+    tiling.relayout(layout_kind, output, wins, animator, settings.cfg);
+}
+
+void LeWMCompositor::tagSurface(Louvre::LSurface* s, const std::string& ws) {
+    tags_[s] = ws;
+    s->setMinimized(ws != current_workspace);
+}
+
+void LeWMCompositor::runAction(const KeyBinding& kb) {
+    if (kb.action == "exec") {
+        std::string cmd;
+        for (size_t i = 0; i < kb.args.size(); ++i) {
+            if (i) cmd += ' ';
+            cmd += kb.args[i];
+        }
+        Louvre::LLauncher::launch(cmd);
+    } else if (kb.action == "layout_next") {
+        cycleLayout();
+    } else if (kb.action == "kill_focused") {
+        killFocused();
+    } else if (kb.action == "focus_next") {
+        cycleFocus(1);
+    } else if (kb.action == "focus_prev") {
+        cycleFocus(-1);
+    } else if (kb.action == "workspace" && !kb.args.empty()) {
+        switchWorkspace(kb.args[0]);
+    } else if (kb.action == "toggle_panel") {
+        panel->toggle();
+    } else if (kb.action == "relayout") {
+        for (Louvre::LOutput* o : outputs()) relayout(o);
+    }
+}
+
+void LeWMCompositor::killFocused() {
+    Louvre::LSurface* s = seat()->keyboard()->focus();
+    if (s && s->toplevel())
+        s->toplevel()->close();
+}
+
+void LeWMCompositor::cycleFocus(int dir) {
+    std::vector<Louvre::LSurface*> all;
+    for (Louvre::LOutput* o : outputs())
+        for (Louvre::LSurface* s : workspaceWindows(o))
+            all.push_back(s);
+    if (all.empty()) return;
+
+    Louvre::LSurface* focused = seat()->keyboard()->focus();
+    int idx = 0;
+    for (size_t i = 0; i < all.size(); ++i)
+        if (all[i] == focused) idx = (int)i;
+
+    idx = (idx + dir + (int)all.size()) % (int)all.size();
+    seat()->keyboard()->setFocus(all[idx]);
+}
+
+void LeWMCompositor::cycleLayout() {
+    layout_kind = (layout_kind == LayoutKind::Tile) ? LayoutKind::Grid : LayoutKind::Tile;
+    for (Louvre::LOutput* o : outputs()) relayout(o);
+}
+
+void LeWMCompositor::switchWorkspace(const std::string& id) {
+    current_workspace = id;
+    for (Louvre::LSurface* s : surfaces()) {
+        if (!s->toplevel()) continue;
+        std::string t = tags_[s];
+        if (t.empty()) t = id;
+        s->setMinimized(t != id);
+    }
+    for (Louvre::LOutput* o : outputs()) relayout(o);
+}
+
+void LeWMCompositor::handleCommand(const std::string& line) {
     std::istringstream is(line);
     std::string cmd;
     is >> cmd;
 
     if (cmd == "toggle_panel") {
         panel->toggle();
+    } else if (cmd == "relayout") {
+        for (Louvre::LOutput* o : outputs()) relayout(o);
+    } else if (cmd == "layout_next") {
+        cycleLayout();
+    } else if (cmd == "switch" && !line.empty()) {
+        std::string id;
+        is >> id;
+        if (!id.empty()) switchWorkspace(id);
     } else if (cmd == "set") {
         std::string key, val;
         is >> key >> val;
         if (settings.set(key, val))
             settings.save(config_path);
-    } else if (cmd == "relayout") {
-        for (Louvre::LOutput* o : outputs()) relayout(o);
     }
-    // layout_next / kill_focused / focus_next are wired to the seat later.
 }
 
 } // namespace lewm

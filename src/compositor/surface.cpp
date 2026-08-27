@@ -22,6 +22,12 @@ void LeWMSurface::mappingChanged() {
     LSurface::mappingChanged();
 
     if (mapped() && toplevel()) {
+        std::string ws = lewm::self().current_workspace;
+        std::string aid = toplevel()->appId();
+        for (const auto& r : lewm::self().settings.cfg.rules)
+            if (r.app_id == aid) { ws = r.workspace; break; }
+
+        lewm::self().tagSurface(this, ws);
         for (Louvre::LOutput* o : compositor()->outputs())
             lewm::self().relayout(o);
     }
