@@ -1,9 +1,12 @@
+#pragma once
+
 #include "lewm.hpp"
 #include "config/le_parser.hpp"
 
 #include <cstdlib>
 #include <iostream>
 #include <string>
+
 
 namespace {
 
