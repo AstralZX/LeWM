@@ -1,4 +1,3 @@
-#pragma once
 #include <Louvre/LLauncher.h>
 #include <Louvre/LLog.h>
 #include <unistd.h>

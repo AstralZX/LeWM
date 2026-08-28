@@ -1,10 +1,11 @@
-#ifndef LEWM_COMPOSITOR_HPP
-#define LEWM_COMPOSITOR_HPP
+#pragma once
 
 #include <LCompositor.h>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
+#include <vector>
 
 #include "scene.hpp"
 #include "config/le_ast.hpp"
@@ -24,11 +25,13 @@ public:
     LeWMScene scene;
     Settings settings;
     WindowAnimator animator;
-    Tiling tiling;
     std::unique_ptr<SettingsPanel> panel;
 
-    LayoutKind layout_kind = LayoutKind::Tile;
+    Layout layout_kind = Layout::Tile;
+    float split_ratio = 0.6f;
     std::string current_workspace = "1";
+
+    bool resize_mode = false;
 
 protected:
     void initialized() override;
@@ -46,17 +49,46 @@ public:
     void killFocused();
     void cycleFocus(int dir);
     void cycleLayout();
+    void switchLayout(const std::string& id);
     void switchWorkspace(const std::string& id);
+    void workspaceNext(int dir);
+    void focusOutput(int dir);
+    void focusLast();
     void handleCommand(const std::string& line);
+
+    void toggleFullscreen(Louvre::LSurface* s);
+    void toggleFloat(Louvre::LSurface* s);
+    void setFloating(Louvre::LSurface* s, bool on);
+    void setFullscreen(Louvre::LSurface* s, bool on);
+    void setSticky(Louvre::LSurface* s, bool on);
+    void toggleSticky(Louvre::LSurface* s);
+    void swapFocused();
+    void setResizeMode(bool on);
+    void nudgeResize(int dx, int dy);
+    void onSurfaceUnmapped(Louvre::LSurface* s);
+    void onSurfaceMapped(Louvre::LSurface* s);
+    void updateFocus(Louvre::LSurface* s);
+    void focusSurface(Louvre::LSurface* s);
+
+    bool isFloating(Louvre::LSurface* s) const { return floating_.count(s) != 0; }
+    bool isFullscreen(Louvre::LSurface* s) const { return fullscreen_.count(s) != 0; }
 
     std::string config_path;
     std::unique_ptr<Ipc> ipc;
 
 private:
     std::map<Louvre::LSurface*, std::string> tags_;
-    std::vector<Louvre::LSurface*> workspaceWindows(Louvre::LOutput* out);
+    std::map<std::string, Layout> ws_layout_;
+    std::map<std::string, std::vector<Louvre::LSurface*>> ws_order_;
+    std::set<Louvre::LSurface*> floating_;
+    std::set<Louvre::LSurface*> fullscreen_;
+    std::set<Louvre::LSurface*> sticky_;
+    std::vector<Louvre::LSurface*> mru_;
+
+    Layout currentLayout();
+    bool workspaceHasWindows(const std::string& id);
+    std::vector<Louvre::LSurface*> visibleWindows(Louvre::LOutput* out);
+    std::vector<Louvre::LSurface*> tileWindows(Louvre::LOutput* out);
 };
 
 } // namespace lewm
-
-#endif

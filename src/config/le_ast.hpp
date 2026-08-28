@@ -20,6 +20,9 @@ struct Rule {
     std::string app_id;
     std::string workspace;
     bool floating = false;
+    bool fullscreen = false;
+    bool has_layout = false;
+    std::string layout;
 };
 
 struct StartupApp {

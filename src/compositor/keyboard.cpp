@@ -34,35 +34,46 @@ bool mod_active(LeWMKeyboard* kb, const std::string& name) {
 } // namespace
 
 void LeWMKeyboard::keyEvent(const Louvre::LKeyboardKeyEvent& event) {
-    LeWMCompositor& wm = lewm::self();
+    LeWMCompositor& wm = self();
 
-    if (event.state() == Louvre::LKeyboardKeyEvent::Pressed) {
-        xkb_keysym_t sym = keySymbol(event.keyCode());
-        char symName[64];
-        xkb_keysym_get_name(sym, symName, sizeof(symName));
-        std::string got(symName);
-        for (auto& c : got) c = std::tolower((unsigned char)c);
+    if (event.state() == Louvre::LKeyboardKeyEvent::Released)
+        return;
 
-        for (const auto& kb : wm.settings.cfg.keys) {
-            std::vector<std::string> parts;
-            std::string cur;
-            for (char ch : kb.combo) {
-                if (ch == '+') { parts.push_back(cur); cur.clear(); }
-                else cur += ch;
-            }
-            parts.push_back(cur);
-            std::string keyTok = parts.back();
-            std::set<std::string> needMods(parts.begin(), parts.end() - 1);
+    xkb_keysym_t sym = keySymbol(event.keyCode());
+    char symName[64];
+    xkb_keysym_get_name(sym, symName, sizeof(symName));
+    std::string got(symName);
+    for (auto& c : got) c = std::tolower((unsigned char)c);
 
-            if (target_sym(keyTok) != sym) continue;
-            bool modsOk = true;
-            for (const auto& m : needMods)
-                if (!mod_active(this, m)) { modsOk = false; break; }
-            if (!modsOk) continue;
+    if (wm.resize_mode) {
+        if (got == "up") { wm.nudgeResize(0, 1); return; }
+        if (got == "down") { wm.nudgeResize(0, -1); return; }
+        if (got == "left") { wm.nudgeResize(-1, 0); return; }
+        if (got == "right") { wm.nudgeResize(1, 0); return; }
+        if (got == "escape" || got == "return") { wm.setResizeMode(false); return; }
+    }
 
-            wm.runAction(kb);
-            return;
+    for (const auto& kb : wm.settings.cfg.keys) {
+        std::vector<std::string> parts;
+        std::string cur;
+        for (char ch : kb.combo) {
+            if (ch == '+') { parts.push_back(cur); cur.clear(); }
+            else cur += ch;
         }
+        parts.push_back(cur);
+        std::string keyTok = parts.back();
+        std::set<std::string> needMods(parts.begin(), parts.end() - 1);
+
+        if (target_sym(keyTok) != sym) continue;
+        bool modsOk = true;
+        for (const auto& m : needMods) {
+            const std::string& name = (m == "mod") ? wm.settings.cfg.modkey : m;
+            if (!mod_active(this, name)) { modsOk = false; break; }
+        }
+        if (!modsOk) continue;
+
+        wm.runAction(kb);
+        return;
     }
 
     wm.scene.handleKeyboardKeyEvent(event);

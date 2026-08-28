@@ -13,7 +13,7 @@
 
 # --- Core --------------------------------------------------------------------
 # The main modifier used by every keybinding below.
-modkey "Super"
+modkey "Alt"
 
 # Gap between tiled windows, in pixels.
 gap 6
@@ -27,8 +27,14 @@ border_color_urgent  "#cc241d"
 # XWayland is off by default. Flip to true if you need X11 apps.
 xwayland false
 
-# Layout applied to fresh workspaces.
-layout default "tile"
+# Layout applied to fresh workspaces. Pick one:
+#   tile     - single column of equal-height windows
+#   grid     - N x M grid that fills the screen
+#   dwindle  - recursive master/split, big window + shrinking rest
+#   master   - a main window on the left with the rest stacked beside it
+#   custom   - nothing is auto-placed; drag windows around by hand
+# Both "layout default \"name\"" and "layout = \"name\"" work.
+layout = "dwindle"
 
 
 # --- Animations --------------------------------------------------------------
@@ -64,41 +70,62 @@ startup "xdg-desktop-portal-wlr"
 
 # --- Keybindings -------------------------------------------------------------
 # Format:  key "Combo" action [args...]
-# Combo is the modifier sequence. Actions: exec, layout_next, kill_focused,
-# focus_next, focus_prev, workspace "n", toggle_panel, relayout.
+# Combo is the modifier sequence. Actions: exec, layout_next, layout "name",
+# kill_focused, focus_next, focus_prev, focus_last, swap_focused, fullscreen,
+# float, sticky, workspace "n", workspace_next, workspace_prev, toggle_panel,
+# relayout, focus_output_next, focus_output_prev, resize_grow, resize_shrink.
 
 # Launchers
-key "Super+Enter"     exec "foot"
-key "Super+d"         exec "fuzzel"
-key "Super+r"         exec "grim -g \"$(slurp)\""
-key "Super+Shift+r"   exec "swaylock"
+key "mod+Enter"     exec "kitty"
+key "mod+d"         exec "fuzzel"
+key "mod+r"         exec "grim -g \"$(slurp)\""
+key "mod+Shift+r"   exec "swaylock"
 
-# Layout + focus
-key "Super+Space"     layout_next
-key "Super+j"         focus_next
-key "Super+k"         focus_prev
-key "Super+Shift+j"   focus_prev
-key "Super+Shift+k"   focus_next
-key "Super+Return"    relayout
+# Layout
+key "mod+Space"     layout_next
+key "mod+t"         layout "tile"
+key "mod+g"         layout "grid"
+key "mod+w"         layout "dwindle"
+key "mod+m"         layout "master"
+key "mod+c"         layout "custom"
+key "mod+Return"    relayout
+
+# Focus
+key "mod+j"         focus_next
+key "mod+k"         focus_prev
+key "mod+Shift+j"   focus_prev
+key "mod+Shift+k"   focus_next
+key "mod+Tab"       focus_last
+key "mod+Ctrl+Left"   focus_output_prev
+key "mod+Ctrl+Right"  focus_output_next
+
+# Workspaces
+key "mod+Ctrl+Tab"        workspace_next
+key "mod+Ctrl+Shift+Tab"  workspace_prev
+key "mod+1"         workspace "1"
+key "mod+2"         workspace "2"
+key "mod+3"         workspace "3"
+key "mod+4"         workspace "4"
+key "mod+5"         workspace "5"
+key "mod+6"         workspace "6"
+key "mod+7"         workspace "7"
+key "mod+8"         workspace "8"
+key "mod+9"         workspace "9"
+key "mod+Shift+1"   workspace "1"
+key "mod+Shift+2"   workspace "2"
+key "mod+Shift+3"   workspace "3"
 
 # Window management
-key "Super+Shift+q"   kill_focused
-key "Super+f"         exec "echo fullscreen"
-key "Super+Shift+Space" toggle_panel
+key "mod+Shift+q"   kill_focused
+key "mod+f"         fullscreen
+key "mod+Shift+f"   float
+key "mod+Shift+t"   sticky
+key "mod+Shift+s"   swap_focused
+key "mod+Shift+Space" toggle_panel
 
-# Workspaces 1..9
-key "Super+1"         workspace "1"
-key "Super+2"         workspace "2"
-key "Super+3"         workspace "3"
-key "Super+4"         workspace "4"
-key "Super+5"         workspace "5"
-key "Super+6"         workspace "6"
-key "Super+7"         workspace "7"
-key "Super+8"         workspace "8"
-key "Super+9"         workspace "9"
-key "Super+Shift+1"   workspace "1"
-key "Super+Shift+2"   workspace "2"
-key "Super+Shift+3"   workspace "3"
+# Master-layout ratio
+key "mod+equal"   resize_grow
+key "mod+minus"   resize_shrink
 
 
 # --- Workspaces --------------------------------------------------------------
@@ -115,8 +142,9 @@ workspace "9" "misc"
 
 
 # --- Rules -------------------------------------------------------------------
-# Match a client by app_id and decide where it lands. Assign a workspace and
-# whether it floats by default.
+# Match a client by app_id and decide where it lands. Assign a workspace,
+# whether it floats or starts fullscreen by default, and optionally force a
+# layout for that workspace.
 rule "firefox"          workspace "2" float false
 rule "chromium"         workspace "2" float false
 rule "org.mozilla.firefox" workspace "2" float false

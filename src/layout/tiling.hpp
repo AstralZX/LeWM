@@ -1,5 +1,4 @@
-#ifndef LEWM_TILING_HPP
-#define LEWM_TILING_HPP
+#pragma once
 
 #include <Louvre/LOutput.h>
 #include <vector>
@@ -8,17 +7,22 @@
 
 namespace lewm {
 
-enum class LayoutKind { Tile, Grid };
-
-class Tiling {
-public:
-    void relayout(LayoutKind kind,
-                  Louvre::LOutput* output,
-                  const std::vector<Louvre::LSurface*>& windows,
-                  WindowAnimator& anim,
-                  const Config& cfg);
+enum class Layout {
+    Tile,
+    Grid,
+    Dwindle,
+    Master,
+    Custom
 };
 
-} // namespace lewm
+Layout layout_from_name(const std::string& name);
+const char* layout_name(Layout layout);
 
-#endif
+void relayout(Layout kind,
+              Louvre::LOutput* output,
+              const std::vector<Louvre::LSurface*>& windows,
+              WindowAnimator& anim,
+              const Config& cfg,
+              float split_ratio);
+
+} // namespace lewm

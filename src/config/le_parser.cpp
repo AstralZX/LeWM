@@ -83,6 +83,10 @@ Config Parser::parse() {
             cfg.xwayland = (toks[1] == "true");
         } else if (cmd == "layout" && toks.size() >= 3 && toks[1] == "default") {
             cfg.default_layout = strip_quotes(toks[2]);
+        } else if (cmd == "layout" && toks.size() >= 3 && toks[1] == "=") {
+            cfg.default_layout = strip_quotes(toks[2]);
+        } else if (cmd == "layout" && toks.size() >= 2) {
+            cfg.default_layout = strip_quotes(toks[1]);
         } else if (cmd == "animation" && toks.size() >= 3) {
             if (toks[1] == "enabled") cfg.anim.enabled = (toks[2] == "true");
             else if (toks[1] == "open_ms") cfg.anim.open_ms = std::stoi(toks[2]);
@@ -125,6 +129,12 @@ Config Parser::parse() {
                     r.workspace = strip_quotes(toks[++i]);
                 else if (toks[i] == "float" && i + 1 < toks.size())
                     r.floating = (toks[++i] == "true");
+                else if (toks[i] == "fullscreen" && i + 1 < toks.size())
+                    r.fullscreen = (toks[++i] == "true");
+                else if (toks[i] == "layout" && i + 1 < toks.size()) {
+                    r.has_layout = true;
+                    r.layout = strip_quotes(toks[++i]);
+                }
             }
             cfg.rules.push_back(r);
         }
@@ -165,9 +175,14 @@ bool save_config(const Config& cfg, const std::string& path) {
     }
     for (const auto& w : cfg.workspaces)
         f << "workspace \"" << w.id << "\" \"" << w.name << "\"\n";
-    for (const auto& r : cfg.rules)
+    for (const auto& r : cfg.rules) {
         f << "rule \"" << r.app_id << "\" workspace \"" << r.workspace
-          << "\" float " << (r.floating ? "true" : "false") << "\n";
+          << "\" float " << (r.floating ? "true" : "false")
+          << " fullscreen " << (r.fullscreen ? "true" : "false");
+        if (r.has_layout)
+            f << " layout \"" << r.layout << "\"";
+        f << "\n";
+    }
     return true;
 }
 

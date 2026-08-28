@@ -18,6 +18,7 @@ Ipc::Ipc(const std::string& runtime_dir, Handler handler)
     addr.sun_family = AF_UNIX;
     std::strncpy(addr.sun_path, socket_path_.c_str(), sizeof(addr.sun_path) - 1);
 
+    unlink(socket_path_.c_str());
     if (bind(fd_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0)
         throw std::runtime_error("ipc bind failed: " + socket_path_);
     if (listen(fd_, 8) < 0)

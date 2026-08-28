@@ -10,7 +10,7 @@ void LeWMSurface::roleChanged() {
 }
 
 void LeWMSurface::layerChanged() {
-    getView()->setParent(&lewm::self().scene.layers[layer()]);
+    getView()->setParent(&self().scene.layers[layer()]);
 }
 
 void LeWMSurface::orderChanged() {
@@ -22,14 +22,9 @@ void LeWMSurface::mappingChanged() {
     LSurface::mappingChanged();
 
     if (mapped() && toplevel()) {
-        std::string ws = lewm::self().current_workspace;
-        std::string aid = toplevel()->appId();
-        for (const auto& r : lewm::self().settings.cfg.rules)
-            if (r.app_id == aid) { ws = r.workspace; break; }
-
-        lewm::self().tagSurface(this, ws);
-        for (Louvre::LOutput* o : Louvre::compositor()->outputs())
-            lewm::self().relayout(o);
+        self().onSurfaceMapped(this);
+    } else if (!mapped()) {
+        self().onSurfaceUnmapped(this);
     }
 }
 
