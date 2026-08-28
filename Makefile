@@ -9,13 +9,14 @@
 #                     Louvre wayland backend; see comments below)
 #
 # Options:
-#   PREFIX=/usr|/usr/local   install prefix  (default: /usr/local)
+#   PREFIX=/usr|/usr/local   install prefix  (default: $(HOME)/.local, or
+#                            /usr/local if HOME is unset)
 #   DESTDIR=/some/stage      install into a staging dir (packaging)
 #   CONFIG=path              copy this file as the user config
 #                            (default: examples/config.le)
 #   BACKENDS_DIR=...         Louvre backends dir override for `make run`
 
-PREFIX      ?= /usr/local
+PREFIX      ?= $(if $(HOME),$(HOME)/.local,/usr/local)
 DESTDIR     ?=
 BINDIR       = $(DESTDIR)$(PREFIX)/bin
 CONFIG      ?= examples/config.le
