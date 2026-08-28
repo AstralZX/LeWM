@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=LeWM
 Comment=LeWM Wayland compositor
-Exec=/home/Astral/.local/bin/LeWM
+Exec=/home/Astral/.local/bin/lewm-session
 Type=Application
