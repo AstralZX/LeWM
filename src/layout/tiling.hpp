@@ -10,8 +10,6 @@ namespace lewm {
 
 enum class LayoutKind { Tile, Grid };
 
-// Static tiling. Relayout is animated through WindowAnimator so window moves
-// are smooth instead of snapping. `kind` picks how windows are arranged.
 class Tiling {
 public:
     void relayout(LayoutKind kind,

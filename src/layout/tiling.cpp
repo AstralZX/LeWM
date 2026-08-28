@@ -28,22 +28,19 @@ void Tiling::relayout(LayoutKind kind,
             Louvre::LPoint target(avail.x() + c * (cw + gap),
                                   avail.y() + r * (ch + gap));
             Louvre::LPoint from = s->pos();
-            if (from == target) s->setPos(target);
-            else anim.move(s, from, target, cfg.anim.move_ms, cfg.anim.easing);
+            if (from != target)
+                anim.move(s, from, target, cfg.anim.move_ms, cfg.anim.easing);
             i++;
         }
         return;
     }
 
-    // Tile: single column, equal height.
     int h = (avail.h() - gap * (n - 1)) / n;
     int y = avail.y();
     for (Louvre::LSurface* s : windows) {
         Louvre::LPoint target(avail.x(), y);
         Louvre::LPoint from = s->pos();
-        if (from == target)
-            s->setPos(target);
-        else
+        if (from != target)
             anim.move(s, from, target, cfg.anim.move_ms, cfg.anim.easing);
         y += h + gap;
     }

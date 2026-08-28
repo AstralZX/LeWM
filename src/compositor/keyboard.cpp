@@ -15,8 +15,6 @@ namespace lewm {
 
 namespace {
 
-// xkb keysym names are case-sensitive and "Enter" is really "Return" etc.
-// Normalize a config key token to what xkb_keysym_from_name expects.
 std::string norm_key(const std::string& k) {
     if (k == "Enter") return "Return";
     if (k == "Esc") return "Escape";
@@ -46,7 +44,6 @@ void LeWMKeyboard::keyEvent(const Louvre::LKeyboardKeyEvent& event) {
         for (auto& c : got) c = std::tolower((unsigned char)c);
 
         for (const auto& kb : wm.settings.cfg.keys) {
-            // Split "Mod+Mod+Key" into modifiers and the key.
             std::vector<std::string> parts;
             std::string cur;
             for (char ch : kb.combo) {
@@ -64,11 +61,10 @@ void LeWMKeyboard::keyEvent(const Louvre::LKeyboardKeyEvent& event) {
             if (!modsOk) continue;
 
             wm.runAction(kb);
-            return; // swallow the binding
+            return;
         }
     }
 
-    // Not a binding: forward to clients.
     wm.scene.handleKeyboardKeyEvent(event);
 }
 

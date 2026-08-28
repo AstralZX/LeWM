@@ -48,7 +48,7 @@ struct Config {
     std::string border_active = "#d65d0e";
     std::string border_normal = "#282828";
     std::string border_urgent = "#cc241d";
-    int gap = 4;
+    int gap = 6;
     bool xwayland = false;
     std::string default_layout = "tile";
 

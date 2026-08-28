@@ -6,8 +6,6 @@
 
 namespace lewm {
 
-// Unix socket control channel. The compositor hands us a handler that gets
-// each line received on $XDG_RUNTIME_DIR/LeWM.sock.
 class Ipc {
 public:
     using Handler = std::function<void(const std::string&)>;

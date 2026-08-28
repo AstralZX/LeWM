@@ -12,7 +12,6 @@ float easeOutCubic(float t);
 float easeInOutCubic(float t);
 float easeOutBack(float t);
 
-// Resolves a name from config (e.g. "easeOutCubic") to a function.
 float resolve(const std::string& name, float t);
 
 } // namespace ease

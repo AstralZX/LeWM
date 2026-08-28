@@ -8,8 +8,6 @@ namespace lewm {
 
 class LeWMToplevelRole;
 
-// A client window. We keep an LSurfaceView for scene rendering and push Z
-// order / layer changes into the scene so views match Louvre's surface order.
 class LeWMSurface final : public Louvre::LSurface {
 public:
     using LSurface::LSurface;

@@ -7,7 +7,6 @@
 
 namespace lewm {
 
-// Stacking layers, bottom (background) to top (overlay).
 enum LayerIndex : int {
     LayerBackground = 0,
     LayerBottom,
@@ -17,9 +16,6 @@ enum LayerIndex : int {
     LayerCount
 };
 
-// One scene drives every output. It has a main view plus the five standard
-// layers (background, bottom, middle, top, overlay) that Louvre surfaces
-// slot into by their role.
 class LeWMScene final : public Louvre::LScene {
 public:
     LeWMScene() noexcept;

@@ -30,8 +30,6 @@ Ipc::~Ipc() {
 }
 
 void Ipc::serve() {
-    // A real build registers fd_ with the compositor event loop and reads
-    // lines, forwarding each to handler_. Kept simple here.
 }
 
 } // namespace lewm
