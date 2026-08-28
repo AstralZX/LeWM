@@ -160,6 +160,9 @@ What is still rough:
 Bug reports, configs and patches are welcome. Keep the memory budget honest
 and the pull requests small.
 
+## If updates are slow
+it is because we both are addicited to smoking and probably are stressing over not having anything to smoke
+
 ## License
 
 LeWM is licensed under the GNU Affero General Public License version 3.
