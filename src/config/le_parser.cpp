@@ -77,6 +77,8 @@ Config Parser::parse() {
             cfg.border_normal = strip_quotes(toks[1]);
         } else if (cmd == "border_color_urgent" && toks.size() >= 2) {
             cfg.border_urgent = strip_quotes(toks[1]);
+        } else if (cmd == "corner_radius" && toks.size() >= 2) {
+            cfg.corner_radius = std::stoi(toks[1]);
         } else if (cmd == "gap" && toks.size() >= 2) {
             cfg.gap = std::stoi(toks[1]);
         } else if (cmd == "xwayland" && toks.size() >= 2) {
@@ -152,6 +154,7 @@ bool save_config(const Config& cfg, const std::string& path) {
     f << "border_color_active \"" << cfg.border_active << "\"\n";
     f << "border_color_normal \"" << cfg.border_normal << "\"\n";
     f << "border_color_urgent \"" << cfg.border_urgent << "\"\n";
+    f << "corner_radius " << cfg.corner_radius << "\n";
     f << "gap " << cfg.gap << "\n";
     f << "xwayland " << (cfg.xwayland ? "true" : "false") << "\n";
     f << "layout default \"" << cfg.default_layout << "\"\n";

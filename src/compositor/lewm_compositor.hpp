@@ -56,6 +56,11 @@ public:
     void focusLast();
     void handleCommand(const std::string& line);
 
+    void toggleGaps();
+    void setRatio(float r);
+    void setOutputGap(Louvre::LOutput* out, int gap);
+    void reloadConfig();
+
     void toggleFullscreen(Louvre::LSurface* s);
     void toggleFloat(Louvre::LSurface* s);
     void setFloating(Louvre::LSurface* s, bool on);
@@ -79,14 +84,19 @@ public:
 private:
     std::map<Louvre::LSurface*, std::string> tags_;
     std::map<std::string, Layout> ws_layout_;
+    std::map<std::string, float> ws_ratio_;
+    std::map<std::string, int> out_gap_;
     std::map<std::string, std::vector<Louvre::LSurface*>> ws_order_;
     std::set<Louvre::LSurface*> floating_;
     std::set<Louvre::LSurface*> fullscreen_;
     std::set<Louvre::LSurface*> sticky_;
     std::vector<Louvre::LSurface*> mru_;
+    bool gaps_enabled_ = true;
 
     Layout currentLayout();
     bool workspaceHasWindows(const std::string& id);
+    float workspaceRatio() const;
+    int workspaceGap(Louvre::LOutput* out) const;
     std::vector<Louvre::LSurface*> visibleWindows(Louvre::LOutput* out);
     std::vector<Louvre::LSurface*> tileWindows(Louvre::LOutput* out);
 };

@@ -64,12 +64,12 @@ void relayout(Layout kind,
               const std::vector<Louvre::LSurface*>& windows,
               WindowAnimator& anim,
               const Config& cfg,
-              float split_ratio) {
+              float split_ratio,
+              int gap) {
     if (!output || windows.empty()) return;
     if (kind == Layout::Custom) return;
 
     Louvre::LRect avail = output->availableGeometry();
-    int gap = cfg.gap;
     int n = (int)windows.size();
 
     if (kind == Layout::Tile) {

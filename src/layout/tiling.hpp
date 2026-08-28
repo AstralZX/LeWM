@@ -23,6 +23,7 @@ void relayout(Layout kind,
               const std::vector<Louvre::LSurface*>& windows,
               WindowAnimator& anim,
               const Config& cfg,
-              float split_ratio);
+              float split_ratio,
+              int gap);
 
 } // namespace lewm

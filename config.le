@@ -23,6 +23,8 @@ border_width 2
 border_color_active  "#d65d0e"
 border_color_normal  "#282828"
 border_color_urgent  "#cc241d"
+# Corner radius on the border frame (0 = square).
+corner_radius 0
 
 # XWayland is off by default. Flip to true if you need X11 apps.
 xwayland false
@@ -126,6 +128,11 @@ key "mod+Shift+Space" toggle_panel
 # Master-layout ratio
 key "mod+equal"   resize_grow
 key "mod+minus"   resize_shrink
+# Toggle gaps on/off, and jump to preset master ratios.
+key "mod+Shift+g" gaps_toggle
+key "mod+o"       ratio_default
+key "mod+p"       ratio_wide
+key "mod+Shift+p" ratio_narrow
 
 
 # --- Workspaces --------------------------------------------------------------

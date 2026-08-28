@@ -143,7 +143,26 @@ void LeWMCompositor::relayout(Louvre::LOutput* output) {
         s->raise();
     }
     auto wins = tileWindows(output);
-    lewm::relayout(currentLayout(), output, wins, animator, settings.cfg, split_ratio);
+    lewm::relayout(currentLayout(), output, wins, animator, settings.cfg,
+                   workspaceRatio(), workspaceGap(output));
+    for (Louvre::LSurface* s : visibleWindows(output)) {
+        if (auto* ws = static_cast<LeWMSurface*>(s))
+            ws->updateBorder();
+    }
+}
+
+float LeWMCompositor::workspaceRatio() const {
+    auto it = ws_ratio_.find(current_workspace);
+    return it == ws_ratio_.end() ? split_ratio : it->second;
+}
+
+int LeWMCompositor::workspaceGap(Louvre::LOutput* out) const {
+    if (!gaps_enabled_) return 0;
+    if (out) {
+        auto it = out_gap_.find(out->name());
+        if (it != out_gap_.end()) return it->second;
+    }
+    return settings.cfg.gap;
 }
 
 void LeWMCompositor::tagSurface(Louvre::LSurface* s, const std::string& ws) {
@@ -169,6 +188,8 @@ void LeWMCompositor::onSurfaceMapped(Louvre::LSurface* s) {
     }
     if (!sticky_.count(s))
         tagSurface(s, ws);
+    if (!isFloating(s) && s->parent())
+        setFloating(s, true);
     for (Louvre::LOutput* o : outputs())
         relayout(o);
 }
@@ -233,6 +254,14 @@ void LeWMCompositor::runAction(const KeyBinding& kb) {
         nudgeResize(1, 0);
     } else if (kb.action == "resize_shrink") {
         nudgeResize(-1, 0);
+    } else if (kb.action == "gaps_toggle") {
+        toggleGaps();
+    } else if (kb.action == "ratio_default") {
+        setRatio(0.5f);
+    } else if (kb.action == "ratio_wide") {
+        setRatio(0.65f);
+    } else if (kb.action == "ratio_narrow") {
+        setRatio(0.35f);
     }
 }
 
@@ -249,9 +278,12 @@ void LeWMCompositor::killFocused() {
 
 void LeWMCompositor::focusSurface(Louvre::LSurface* s) {
     if (!s) return;
+    Louvre::LSurface* prev = seat()->keyboard()->focus();
     seat()->keyboard()->setFocus(s);
     mru_.erase(std::remove(mru_.begin(), mru_.end(), s), mru_.end());
     mru_.push_back(s);
+    if (auto* p = static_cast<LeWMSurface*>(prev)) p->updateBorder();
+    if (auto* n = static_cast<LeWMSurface*>(s)) n->updateBorder();
 }
 
 void LeWMCompositor::updateFocus(Louvre::LSurface* s) {
@@ -418,7 +450,25 @@ void LeWMCompositor::setResizeMode(bool on) {
 
 void LeWMCompositor::nudgeResize(int dx, int dy) {
     (void)dy;
-    split_ratio = std::clamp(split_ratio + 0.05f * dx, 0.2f, 0.8f);
+    float r = workspaceRatio();
+    r = std::clamp(r + 0.05f * dx, 0.2f, 0.8f);
+    ws_ratio_[current_workspace] = r;
+    for (Louvre::LOutput* o : outputs()) relayout(o);
+}
+
+void LeWMCompositor::setRatio(float r) {
+    ws_ratio_[current_workspace] = std::clamp(r, 0.2f, 0.8f);
+    for (Louvre::LOutput* o : outputs()) relayout(o);
+}
+
+void LeWMCompositor::toggleGaps() {
+    gaps_enabled_ = !gaps_enabled_;
+    for (Louvre::LOutput* o : outputs()) relayout(o);
+}
+
+void LeWMCompositor::setOutputGap(Louvre::LOutput* out, int gap) {
+    if (!out) return;
+    out_gap_[out->name()] = gap;
     for (Louvre::LOutput* o : outputs()) relayout(o);
 }
 
@@ -446,7 +496,34 @@ void LeWMCompositor::handleCommand(const std::string& line) {
         is >> key >> val;
         if (settings.set(key, val))
             settings.save(config_path);
+    } else if (cmd == "reload") {
+        reloadConfig();
+    } else if (cmd == "gaps") {
+        toggleGaps();
+    } else if (cmd == "ratio") {
+        std::string v;
+        is >> v;
+        if (v == "default") setRatio(0.5f);
+        else if (v == "wide") setRatio(0.65f);
+        else if (v == "narrow") setRatio(0.35f);
+    } else if (cmd == "gap") {
+        int g;
+        if (is >> g) setOutputGap(Louvre::cursor()->output(), g);
     }
+}
+
+void LeWMCompositor::reloadConfig() {
+    settings.load(config_path);
+    ws_layout_.clear();
+    ws_ratio_.clear();
+    for (const auto& w : settings.cfg.workspaces)
+        ws_layout_[w.id] = layout_kind;
+    for (Louvre::LSurface* s : surfaces()) {
+        if (auto* ws = static_cast<LeWMSurface*>(s))
+            ws->updateBorder();
+    }
+    for (Louvre::LOutput* o : outputs())
+        relayout(o);
 }
 
 } // namespace lewm
