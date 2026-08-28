@@ -162,6 +162,7 @@ and the pull requests small.
 
 ## If updates are slow
 it is because we both are addicited to smoking and probably are stressing over not having anything to smoke
+we are both teens and do not have to much money and access to cigarettes, if code is slow or not released too much then we are most likely out and stressing, we cannot purchase that much for low prices like adults
 
 ## License
 
