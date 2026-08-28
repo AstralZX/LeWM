@@ -59,9 +59,13 @@ void LeWMCompositor::initialized() {
     const char* rd = std::getenv("XDG_RUNTIME_DIR");
     ipc = std::make_unique<Ipc>(rd ? rd : "/tmp",
                                 [this](const std::string& line) { handleCommand(line); });
+    ipc_timer_ = std::make_unique<Louvre::LTimer>([this](Louvre::LTimer*) { ipc->serve(); });
+    ipc_timer_->start(40);
 }
 
 void LeWMCompositor::uninitialized() {
+    ipc_timer_->cancel();
+    ipc_timer_.reset();
     ipc.reset();
     panel.reset();
 }

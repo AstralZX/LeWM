@@ -16,7 +16,7 @@ public:
     Ipc(const Ipc&) = delete;
     Ipc& operator=(const Ipc&) = delete;
 
-    void serve();
+    bool serve();
 
 private:
     std::string socket_path_;

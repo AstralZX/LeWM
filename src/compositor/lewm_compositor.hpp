@@ -1,6 +1,7 @@
 #pragma once
 
 #include <LCompositor.h>
+#include <Louvre/LTimer.h>
 #include <map>
 #include <memory>
 #include <set>
@@ -80,6 +81,7 @@ public:
 
     std::string config_path;
     std::unique_ptr<Ipc> ipc;
+    std::unique_ptr<Louvre::LTimer> ipc_timer_;
 
 private:
     std::map<Louvre::LSurface*, std::string> tags_;

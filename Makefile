@@ -25,7 +25,7 @@ BUILD_DIR   ?= build
 # backends if set, else rely on the default path compiled into Louvre.
 BACKENDS_DIR ?= $(shell pkg-config --variable=prefix Louvre 2>/dev/null)/lib64/Louvre/backends
 
-CMAKEFLAGS   =
+CMAKEFLAGS   = -DCMAKE_INSTALL_PREFIX=$(PREFIX)
 ifneq ($(DESTDIR),)
 	CMAKEFLAGS += -DCMAKE_INSTALL_PREFIX=$(PREFIX)
 endif
