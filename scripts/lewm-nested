@@ -1,0 +1,27 @@
+#!/bin/sh
+# LeWM nested Wayland session launcher.
+# Runs LeWM as a Wayland client surface inside the current compositor
+# (mango/hyprland). Works on NVIDIA (no GBM DRM requirement).
+set -e
+
+LEWM=/home/Astral/.local/bin/LeWM
+LOUVRE_PREFIX=/home/Astral/opt/louvre
+CONFIG="$HOME/.config/LeWM/config-nested.le"
+
+export LOUVRE_BACKENDS_PATH="$LOUVRE_PREFIX/lib64/Louvre/backends"
+export LOUVRE_GRAPHIC_BACKEND=wayland
+export LOUVRE_INPUT_BACKEND=wayland
+export LOUVRE_WAYLAND_DISPLAY="${LEWM_WAYLAND_DISPLAY:-wayland-7}"
+export LD_LIBRARY_PATH="$LOUVRE_PREFIX/lib64"
+export LOUVRE_ENABLE_LIBSEAT=0
+export QT_QPA_PLATFORM=wayland-egl
+export GDK_BACKEND=wayland
+
+# Point LeWM at the nested config if it exists (defaults live under ~/.config/LeWM).
+if [ -n "$LEWM_NESTED_CONFIG" ]; then
+    mkdir -p "$HOME/.config/LeWM"
+    cp -f "$LEWM_NESTED_CONFIG" "$HOME/.config/LeWM/config.le"
+fi
+
+echo ">> Starting LeWM nested on display $LOUVRE_WAYLAND_DISPLAY (config: $CONFIG)"
+exec "$LEWM"
